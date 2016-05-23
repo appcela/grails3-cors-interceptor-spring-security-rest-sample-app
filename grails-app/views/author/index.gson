@@ -1,0 +1,8 @@
+import com.appcela.myrestapp.domain.Author
+
+model {
+	Iterable<Author> authorList
+}
+
+json tmpl.author(authorList ?: [])
+

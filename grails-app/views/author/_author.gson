@@ -1,0 +1,7 @@
+import com.appcela.myrestapp.domain.Author
+
+model {
+	Author author
+}
+
+json g.render(author)

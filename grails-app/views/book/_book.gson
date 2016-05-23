@@ -1,0 +1,7 @@
+import com.appcela.myrestapp.domain.Book
+
+model {
+	Book book
+}
+
+json g.render(book)

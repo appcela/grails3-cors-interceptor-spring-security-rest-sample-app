@@ -1,0 +1,8 @@
+import com.appcela.myrestapp.domain.Book
+
+model {
+	Iterable<Book> bookList
+}
+
+json tmpl.book(bookList ?: [])
+
