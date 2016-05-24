@@ -13,7 +13,7 @@ class UrlMappings {
         "500"(view: '/error')
         "404"(view: '/notFound')
 
-        "/api/authors"(resource: 'author')
-        "/api/books"(resource: 'book')
+        "/api/authors"(resources: 'author')
+        "/api/books"(resources: 'book')
     }
 }

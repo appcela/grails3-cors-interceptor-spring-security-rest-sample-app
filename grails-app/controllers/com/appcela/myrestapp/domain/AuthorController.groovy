@@ -1,5 +1,7 @@
 package com.appcela.myrestapp.domain
 
+import grails.plugin.springsecurity.annotation.Secured
+
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 
@@ -9,16 +11,19 @@ class AuthorController {
     static responseFormats = ['json', 'xml']
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
+    @Secured(value=['ROLE_API_CLIENT'], httpMethod='GET')
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
         respond Author.list(params), model:[authorCount: Author.count()]
     }
 
+    @Secured(value=['ROLE_API_CLIENT'], httpMethod='GET')
     def show(Author author) {
         respond author
     }
 
     @Transactional
+    @Secured(value=['ROLE_API_CLIENT'], httpMethod='POST')
     def save(Author author) {
         if (author == null) {
             transactionStatus.setRollbackOnly()
@@ -38,6 +43,7 @@ class AuthorController {
     }
 
     @Transactional
+    @Secured(value=['ROLE_API_CLIENT'], httpMethod='PUT')
     def update(Author author) {
         if (author == null) {
             transactionStatus.setRollbackOnly()
@@ -57,6 +63,7 @@ class AuthorController {
     }
 
     @Transactional
+    @Secured(value=['ROLE_API_CLIENT'], httpMethod='DELETE')
     def delete(Author author) {
 
         if (author == null) {

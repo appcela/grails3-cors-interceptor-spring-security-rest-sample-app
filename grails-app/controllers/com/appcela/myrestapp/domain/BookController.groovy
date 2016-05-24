@@ -1,5 +1,7 @@
 package com.appcela.myrestapp.domain
 
+import grails.plugin.springsecurity.annotation.Secured
+
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 
@@ -9,16 +11,19 @@ class BookController {
     static responseFormats = ['json', 'xml']
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
+    @Secured(value=['ROLE_API_CLIENT'], httpMethod='GET')
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
         respond Book.list(params), model:[bookCount: Book.count()]
     }
 
+    @Secured(value=['ROLE_API_CLIENT'], httpMethod='GET')
     def show(Book book) {
         respond book
     }
 
     @Transactional
+    @Secured(value=['ROLE_API_CLIENT'], httpMethod='POST')
     def save(Book book) {
         if (book == null) {
             transactionStatus.setRollbackOnly()
@@ -38,6 +43,7 @@ class BookController {
     }
 
     @Transactional
+    @Secured(value=['ROLE_API_CLIENT'], httpMethod='PUT')
     def update(Book book) {
         if (book == null) {
             transactionStatus.setRollbackOnly()
@@ -57,6 +63,7 @@ class BookController {
     }
 
     @Transactional
+    @Secured(value=['ROLE_API_CLIENT'], httpMethod='DELETE')
     def delete(Book book) {
 
         if (book == null) {

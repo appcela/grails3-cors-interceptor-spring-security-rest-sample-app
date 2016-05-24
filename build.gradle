@@ -62,6 +62,7 @@ dependencies {
     console "org.grails:grails-console"
     profile "org.grails.profiles:rest-api:3.1.7"
 
+    compile "org.grails.plugins:spring-security-core:3.0.4"
     compile "org.grails.plugins:spring-security-rest:2.0.0.M2"
 
     runtime "com.h2database:h2"
