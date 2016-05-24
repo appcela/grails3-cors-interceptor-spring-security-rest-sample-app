@@ -4,6 +4,8 @@ grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'com.appcela.my
 grails.plugin.springsecurity.authority.className = 'com.appcela.myrestapp.security.Role'
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/',               access: ['permitAll']],
+	[pattern: '/500',            access: ['permitAll']],
+	[pattern: '/404',            access: ['permitAll']],
 	[pattern: '/error',          access: ['permitAll']],
 	[pattern: '/index',          access: ['permitAll']],
 	[pattern: '/index.gsp',      access: ['permitAll']],
@@ -12,7 +14,12 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/**/js/**',       access: ['permitAll']],
 	[pattern: '/**/css/**',      access: ['permitAll']],
 	[pattern: '/**/images/**',   access: ['permitAll']],
-	[pattern: '/**/favicon.ico', access: ['permitAll']]
+	[pattern: '/**/favicon.ico', access: ['permitAll']],
+	// block all other URL access
+	[pattern: '/**', access: ['denyAll'], httpMethod: 'GET'],
+	[pattern: '/**', access: ['denyAll'], httpMethod: 'POST'],
+	[pattern: '/**', access: ['denyAll'], httpMethod: 'PUT'],
+	[pattern: '/**', access: ['denyAll'], httpMethod: 'DELETE']
 ]
 
 grails.plugin.springsecurity.filterChain.chainMap = [
@@ -32,9 +39,8 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 			pattern: '/**',
 			filters: 'JOINED_FILTERS,-restTokenValidationFilter,-restExceptionTranslationFilter'
 	]
-//	[pattern: '/**',             filters: 'JOINED_FILTERS']
 ]
 
-// CORS fix
+// Optimistic approach (restrict access by URL only) to allow 'OPTIONS' access for CORS
 grails.plugin.springsecurity.rejectIfNoRule = false
 grails.plugin.springsecurity.fii.rejectPublicInvocations = false
