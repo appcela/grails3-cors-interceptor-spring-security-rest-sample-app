@@ -170,7 +170,7 @@ That's all, you should be all set now.
 
 ## Working with Spring Security REST Plugin
 
-The Spring Security REST plugin is based on Spring Security Core plugin, so the required settings to get grails3-cores-interceptor working are basically the same with just few differences. 
+The Spring Security REST plugin is based on Spring Security Core plugin, so the required settings to get grails3-cores-interceptor working are basically the same with just a few differences. 
 
 ### 1. Add Plugin Dependency*
 
@@ -252,6 +252,58 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 ]
 ```
 
+#### 3.3 Apply Login Endpoint CORS Support Fix*
+
+There's a problem with the Spring Security REST plugin (see [Add CORS support for plugin version 2.x #256](https://github.com/alvarosanchez/grails-spring-security-rest/issues/256)) where the login endpoint url `/api/login` returns 
+"405 Method Not Allowed" error on CORS preflight 'OPTIONS' requests.
+
+##### 3.3.1 Root Cause*
+
+The problem is that the Spring Security REST login url is handled by a filter. And it only accepts POST requests.
+
+[RestAuthenticationFilter.groovy](https://github.com/alvarosanchez/grails-spring-security-rest/blob/develop/spring-security-rest/src/main/groovy/grails/plugin/springsecurity/rest/RestAuthenticationFilter.groovy)
+
+```
+            //Only POST is supported
+            if (httpServletRequest.method != 'POST') {
+                log.debug "${httpServletRequest.method} HTTP method is not supported. Setting status to ${HttpServletResponse.SC_METHOD_NOT_ALLOWED}"
+                httpServletResponse.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED)
+                return
+            }
+```            
+
+Unfortunately Grails interceptors do not work with filters. As a result, our CORS interceptor has no effect on the login url `/api/login`. 
+
+##### 3.3.2 Spring Security CORS Filter Fix*
+
+The solution is to apply the [SpringSecurityCorsFilter](ttps://github.com/appcela/grails3-cors-interceptor/blob/master/src/main/groovy/grails3/cors/interceptor/SpringSecurityCORSFilter.groovy) from the [grails3-cors-interceptor](https://github.com/appcela/grails3-cors-interceptor) plugin to the Spring Security REST login url.
+
+First step is to register the `SpringSecurityCorsFilter` filter bean.
+
+*conf/spring/resources.groovy*
+
+```
+import grails3.cors.interceptor.SpringSecurityCorsFilter
+
+beans = {
+    securityCorsFilter(SpringSecurityCorsFilter)
+}
+```
+
+And then apply it to the login url,
+
+```
+// application.groovy
+
+grails.plugin.springsecurity.filterChain.chainMap = [
+	...
+	[pattern: '/api/login',      filters: 'securityCorsFilter,restAuthenticationFilter'],
+    ...
+```
+
+- `securityCorsFilter` (grails3-cors-interceptor) will take care of 'OPTIONS' requests
+- `restAuthenticationFilter` (Spring Security REST) will handle 'POST' requests for authentication
+
 Here's what your final mappings should look like.
 
 *application.groovy*
@@ -274,7 +326,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/**/css/**',      access: ['permitAll']],
 	[pattern: '/**/images/**',   access: ['permitAll']],
 	[pattern: '/**/favicon.ico', access: ['permitAll']],
-	// EDIT: block all other URL access
+	// block all other URL access
 	[pattern: '/**', access: ['denyAll'], httpMethod: 'GET'],
 	[pattern: '/**', access: ['denyAll'], httpMethod: 'POST'],
 	[pattern: '/**', access: ['denyAll'], httpMethod: 'PUT'],
@@ -287,25 +339,27 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 	[pattern: '/**/css/**',      filters: 'none'],
 	[pattern: '/**/images/**',   filters: 'none'],
 	[pattern: '/**/favicon.ico', filters: 'none'],
+	[pattern: '/api/login',      filters: 'securityCorsFilter,restAuthenticationFilter'],
 	//Stateless chain
 	[
 			pattern: '/api/**',
-			filters: 'JOINED_FILTERS,-anonymousAuthenticationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter'
+			filters: 'JOINED_FILTERS,-securityCorsFilter,-anonymousAuthenticationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter'
 	],
 
 	//Traditional chain
 	[
 			pattern: '/**',
-			filters: 'JOINED_FILTERS,-restTokenValidationFilter,-restExceptionTranslationFilter'
+			filters: 'JOINED_FILTERS,-securityCorsFilter,-restTokenValidationFilter,-restExceptionTranslationFilter'
 	]
 ]
 
-// EDIT: Optimistic approach (restrict access by URL only) to allow 'OPTIONS' access for CORS
+// Optimistic approach (restrict access by URL only) to allow 'OPTIONS' access for CORS
 grails.plugin.springsecurity.rejectIfNoRule = false
 grails.plugin.springsecurity.fii.rejectPublicInvocations = false
 ```
 
-#### 3.3 Define Secured Annotations
+
+#### 3.4 Define Secured Annotations
 
 The [@Secured annotation](https://grails-plugins.github.io/grails-spring-security-core/v3/index.html#securedAnnotations) by default applies to all HTTP methods including 'OPTIONS'. This means the preflight CORS 'OPTIONS' request is secured and requires authentication and authorization to access.
 
