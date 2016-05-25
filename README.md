@@ -1,6 +1,9 @@
 # grails3-cors-interceptor-spring-security-rest-sample-app
 Sample Grails app to demo how to use the [grails3-cors-interceptor](https://github.com/appcela/grails3-cors-interceptor) with [Spring Security Core](https://grails-plugins.github.io/grails-spring-security-core/v3/index.html) or [Spring Security REST plugin](http://alvarosanchez.github.io/grails-spring-security-rest/2.0.0.M2/docs/index.html).
 
+- [Working with Spring Security Core Plugin](#working-with-spring-security-core-plugin)
+- [Working with Spring Security REST Plugin](#working-with-spring-security-rest-plugin)
+
 ## Working with Spring Security Core Plugin
 
 ### 1. Add Plugin Dependency
