@@ -287,6 +287,11 @@ import grails3.cors.interceptor.SpringSecurityCorsFilter
 
 beans = {
     securityCorsFilter(SpringSecurityCorsFilter)
+    
+    myFilterDeregistrationBean(FilterRegistrationBean) {
+        filter = ref('securityCorsFilter')
+        enabled = false
+    }
 }
 ```
 
