@@ -12,7 +12,7 @@ Sample Grails app to demo how to use the [grails3-cors-interceptor](https://gith
 
 ```
     compile "org.grails.plugins:spring-security-core:3.0.4"
-    compile "org.grails.plugins:grails3-cors-interceptor:1.0.0"
+    compile "org.grails.plugins:grails3-cors-interceptor:1.1.0"
 ```
 
 ### 2. Add HTTP OPTIONS Method URL Mapping 
