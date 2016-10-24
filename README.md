@@ -179,7 +179,7 @@ The Spring Security REST plugin is based on Spring Security Core plugin, so the 
 ```
     compile "org.grails.plugins:spring-security-core:3.0.4"
     compile "org.grails.plugins:spring-security-rest:2.0.0.M2"
-    compile "org.grails.plugins:grails3-cors-interceptor:1.0.0"
+    compile "org.grails.plugins:grails3-cors-interceptor:1.1.0"
 ```
 
 ### 2. Add HTTP OPTIONS Method URL Mapping 
